@@ -218,7 +218,7 @@ const MessageInput = ({ ticketStatus }) => {
     useContext(ReplyMessageContext);
   const { user } = useContext(AuthContext);
 
-  const [signMessage, setSignMessage] = useLocalStorage("signOption", true);
+  const [signMessage, setSignMessage] = useState( true);
 
   useEffect(() => {
     inputRef.current.focus();
@@ -493,6 +493,7 @@ const MessageInput = ({ ticketStatus }) => {
             <FormControlLabel
               style={{ marginRight: 7, color: "gray" }}
               label={i18n.t("messagesInput.signMessage")}
+              disabled={true}
               labelPlacement="start"
               control={
                 <Switch
