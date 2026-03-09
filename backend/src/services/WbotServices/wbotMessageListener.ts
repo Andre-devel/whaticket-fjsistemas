@@ -297,7 +297,8 @@ const handleMessage = async (
     }
 
     const chat = await msg.getChat();
-    if (chat.isGroup || chat.id._serialized.includes('@g.us')) {
+
+    if (chat.isGroup) {
       let msgGroupContact;
 
       if (msg.fromMe) {
@@ -336,7 +337,7 @@ const handleMessage = async (
 
     if (
       !ticket.queue &&
-      !chat.isGroup && !chat.id._serialized.includes('@g.us') &&
+      !chat.isGroup &&
       !msg.fromMe &&
       !ticket.userId &&
       whatsapp.queues.length >= 1
