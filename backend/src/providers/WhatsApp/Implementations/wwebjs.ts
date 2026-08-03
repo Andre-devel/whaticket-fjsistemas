@@ -101,7 +101,12 @@ const getSerializedMessageId = (
 const convertToContactPayload = async (
   msgContact: WbotContact
 ): Promise<ContactPayload> => {
-  const profilePicUrl = await msgContact.getProfilePicUrl();
+  let profilePicUrl: string | undefined;
+  try {
+    profilePicUrl = await msgContact.getProfilePicUrl();
+  } catch (err) {
+    profilePicUrl = undefined;
+  }
 
   return {
     name: msgContact.name || msgContact.pushname || msgContact.id.user,
@@ -163,7 +168,13 @@ const convertToMediaPayload = async (
 ): Promise<MediaPayload | undefined> => {
   if (!msg.hasMedia) return undefined;
 
-  const media = await msg.downloadMedia();
+  let media: any;
+  try {
+    media = await msg.downloadMedia();
+  } catch (err) {
+    logger.warn(`downloadMedia() falhou: ${err.message}`);
+    return undefined;
+  }
   if (!media) return undefined;
 
   return {
@@ -228,9 +239,15 @@ const getMessageData = async (
     msgContact = await msg.getContact();
   }
 
-  const chat = await msg.getChat();
+  let chat: any = null;
+  try {
+    chat = await msg.getChat();
+  } catch (err) {
+    logger.warn(`getChat() falhou, seguindo sem dados do chat: ${err.message}`);
+  }
+  const isGroupChat = chat ? chat.isGroup : msg.from.endsWith("@g.us");
 
-  if (chat.isGroup) {
+  if (isGroupChat) {
     let msgGroupContact;
 
     if (msg.fromMe) {
@@ -242,11 +259,18 @@ const getMessageData = async (
     groupContact = await convertToContactPayload(msgGroupContact);
   }
 
-  const unreadMessages = msg.fromMe ? 0 : chat.unreadCount;
+  const unreadMessages = msg.fromMe ? 0 : chat?.unreadCount ?? 1;
 
   const contactPayload = await convertToContactPayload(msgContact);
   const messagePayload = await convertToMessagePayload(msg);
   const mediaPayload = await convertToMediaPayload(msg);
+
+  if (msg.hasMedia && !mediaPayload) {
+    const aviso = "⚠️ [Mídia não recebida — peça o reenvio ao cliente]";
+    messagePayload.body = messagePayload.body
+      ? messagePayload.body + "\n\n" + aviso
+      : aviso;
+  }
 
   const contextPayload: WhatsappContextPayload = {
     whatsappId: wbot.id!,
@@ -451,7 +475,6 @@ const init = async (whatsapp: Whatsapp): Promise<void> => {
     const args: string = process.env.CHROME_ARGS || "";
 
     const wbot: Session = new Client({
-      session: sessionCfg,
       authStrategy: new LocalAuth({ clientId: `bd_${whatsapp.id}` }),
       puppeteer: {
         // headless: false, // TODO make sure chromium closes on session disconnection / delete
