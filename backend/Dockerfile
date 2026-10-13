@@ -36,6 +36,7 @@ ENV CHROME_BIN=/usr/bin/google-chrome-stable
 EXPOSE 3000
 
 ENTRYPOINT ["dumb-init", "--"]
-CMD dockerize -wait tcp://${DB_HOST}:${DB_PORT:-3306} -timeout 60s \
+CMD rm -f /usr/src/app/.wwebjs_auth/session-*/Singleton* \
+  && dockerize -wait tcp://${DB_HOST}:${DB_PORT:-3306} -timeout 60s \
   && npx sequelize db:migrate \
   && node dist/server.js

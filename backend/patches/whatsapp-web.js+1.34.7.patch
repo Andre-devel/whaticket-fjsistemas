@@ -1,66 +1,8 @@
-diff --git a/node_modules/whatsapp-web.js/src/structures/Base.js b/node_modules/whatsapp-web.js/src/structures/Base.js
-index ed1d83c..1d48528 100644
---- a/node_modules/whatsapp-web.js/src/structures/Base.js
-+++ b/node_modules/whatsapp-web.js/src/structures/Base.js
-@@ -19,6 +19,13 @@ class Base {
-     _patch(data) {
-         return data;
-     }
-+
-+    static _normalizeId(id) {
-+        if (id && id._serialized == null && id.$1 != null) {
-+            return Object.assign({}, id, { _serialized: id.$1 });
-+        }
-+        return id;
-+    }
- }
- 
- module.exports = Base;
-diff --git a/node_modules/whatsapp-web.js/src/structures/Message.js b/node_modules/whatsapp-web.js/src/structures/Message.js
-index dd977e8..a549c47 100644
---- a/node_modules/whatsapp-web.js/src/structures/Message.js
-+++ b/node_modules/whatsapp-web.js/src/structures/Message.js
-@@ -34,7 +34,7 @@ class Message extends Base {
-          * ID that represents the message
-          * @type {object}
-          */
--        this.id = data.id;
-+        this.id = Base._normalizeId(data.id);
- 
-         /**
-          * ACK status for the message
 diff --git a/node_modules/whatsapp-web.js/src/util/Injected/Utils.js b/node_modules/whatsapp-web.js/src/util/Injected/Utils.js
-index 540078a..c2927ca 100644
+index cc8f47f..c20ec23 100644
 --- a/node_modules/whatsapp-web.js/src/util/Injected/Utils.js
 +++ b/node_modules/whatsapp-web.js/src/util/Injected/Utils.js
-@@ -582,7 +582,7 @@ exports.LoadUtils = () => {
- 
-         return window
-             .require('WAWebCollections')
--            .Msg.get(newMsgKey._serialized);
-+            .Msg.get(newMsgKey._serialized || newMsgKey.$1);
-     };
- 
-     window.WWebJS.editMessage = async (msg, content, options = {}) => {
-@@ -625,7 +625,7 @@ exports.LoadUtils = () => {
-         await window
-             .require('WAWebSendMessageEditAction')
-             .sendMessageEdit(msg, content, internalOptions);
--        return window.require('WAWebCollections').Msg.get(msg.id._serialized);
-+        return window.require('WAWebCollections').Msg.get(msg.id._serialized || msg.id.$1);
-     };
- 
-     window.WWebJS.toStickerData = async (mediaInfo) => {
-@@ -830,7 +830,7 @@ exports.LoadUtils = () => {
- 
-         if (typeof msg.id.remote === 'object') {
-             msg.id = Object.assign({}, msg.id, {
--                remote: msg.id.remote._serialized,
-+                remote: msg.id.remote._serialized || msg.id.remote.$1,
-             });
-         }
- 
-@@ -861,13 +861,18 @@ exports.LoadUtils = () => {
+@@ -875,13 +875,18 @@ exports.LoadUtils = () => {
                  chat = null;
              }
          } else {
