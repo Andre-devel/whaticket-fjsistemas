@@ -9,8 +9,6 @@ export default defineConfig({
   ],
   server: {
     port: 3000,
-    host: true,
-    allowedHosts: ["fjzap.fjsistemas.com.br"],
     open: true,
   },
   build: {
@@ -40,7 +38,7 @@ export default defineConfig({
   optimizeDeps: {
     esbuildOptions: {
       loader: {
-        '.js': 'jsx',
+        ".js": "jsx",
       },
     },
     include: [
