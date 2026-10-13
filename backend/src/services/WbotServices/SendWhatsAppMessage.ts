@@ -1,4 +1,5 @@
 import AppError from "../../errors/AppError";
+import { logger } from "../../utils/logger";
 import Message from "../../models/Message";
 import Ticket from "../../models/Ticket";
 import { whatsappProvider, ProviderMessage } from "../../providers/WhatsApp";
@@ -37,6 +38,7 @@ const SendWhatsAppMessage = async ({
     await ticket.update({ lastMessage: body });
     return sentMessage;
   } catch (err) {
+    logger.error(err, "Falha real ao enviar mensagem WhatsApp");
     throw new AppError("ERR_SENDING_WAPP_MSG");
   }
 };

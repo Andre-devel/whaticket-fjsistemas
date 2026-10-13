@@ -29,3 +29,60 @@ index dd977e8..a549c47 100644
  
          /**
           * ACK status for the message
+diff --git a/node_modules/whatsapp-web.js/src/util/Injected/Utils.js b/node_modules/whatsapp-web.js/src/util/Injected/Utils.js
+index 540078a..c2927ca 100644
+--- a/node_modules/whatsapp-web.js/src/util/Injected/Utils.js
++++ b/node_modules/whatsapp-web.js/src/util/Injected/Utils.js
+@@ -582,7 +582,7 @@ exports.LoadUtils = () => {
+ 
+         return window
+             .require('WAWebCollections')
+-            .Msg.get(newMsgKey._serialized);
++            .Msg.get(newMsgKey._serialized || newMsgKey.$1);
+     };
+ 
+     window.WWebJS.editMessage = async (msg, content, options = {}) => {
+@@ -625,7 +625,7 @@ exports.LoadUtils = () => {
+         await window
+             .require('WAWebSendMessageEditAction')
+             .sendMessageEdit(msg, content, internalOptions);
+-        return window.require('WAWebCollections').Msg.get(msg.id._serialized);
++        return window.require('WAWebCollections').Msg.get(msg.id._serialized || msg.id.$1);
+     };
+ 
+     window.WWebJS.toStickerData = async (mediaInfo) => {
+@@ -830,7 +830,7 @@ exports.LoadUtils = () => {
+ 
+         if (typeof msg.id.remote === 'object') {
+             msg.id = Object.assign({}, msg.id, {
+-                remote: msg.id.remote._serialized,
++                remote: msg.id.remote._serialized || msg.id.remote.$1,
+             });
+         }
+ 
+@@ -861,13 +861,18 @@ exports.LoadUtils = () => {
+                 chat = null;
+             }
+         } else {
+-            chat =
+-                window.require('WAWebCollections').Chat.get(chatWid) ||
+-                (
+-                    await window
+-                        .require('WAWebFindChatAction')
+-                        .findOrCreateLatestChat(chatWid)
+-                )?.chat;
++            chat = window.require('WAWebCollections').Chat.get(chatWid);
++            if (!chat) {
++                try {
++                    chat = (
++                        await window
++                            .require('WAWebFindChatAction')
++                            .findOrCreateLatestChat(chatWid)
++                    )?.chat;
++                } catch (ignoredError) {
++                    chat = null;
++                }
++            }
+         }
+ 
+         return getAsModel && chat

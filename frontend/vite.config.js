@@ -9,6 +9,8 @@ export default defineConfig({
   ],
   server: {
     port: 3000,
+    host: true,
+    allowedHosts: ["fjzap.fjsistemas.com.br"],
     open: true,
   },
   build: {
@@ -36,6 +38,11 @@ export default defineConfig({
     global: "globalThis",
   },
   optimizeDeps: {
+    esbuildOptions: {
+      loader: {
+        '.js': 'jsx',
+      },
+    },
     include: [
       "mic-recorder-to-mp3",
       "@material-ui/core",

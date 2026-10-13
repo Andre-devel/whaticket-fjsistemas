@@ -74,6 +74,21 @@ const mapMessageAck = (wbotAck: any): MessageAck => {
 const convertToProviderMessage = (
   wbotMessage: WbotMessage
 ): ProviderMessage => {
+  if (!wbotMessage) {
+    logger.warn("sendMessage retornou vazio; gerando payload minimo");
+    return {
+      id: `local_${Date.now()}`,
+      body: "",
+      fromMe: true,
+      hasMedia: false,
+      type: "chat",
+      timestamp: Math.floor(Date.now() / 1000),
+      from: "",
+      to: "",
+      hasQuotedMsg: false,
+      ack: 1
+    } as ProviderMessage;
+  }
   return {
     id: wbotMessage.id.id,
     body: wbotMessage.body,
@@ -354,7 +369,8 @@ const sendMessage = async (
 
   const sentMessage = await wbot.sendMessage(to, body, {
     quotedMessageId: quotedMsgSerializedId,
-    linkPreview: options?.linkPreview
+    linkPreview: options?.linkPreview,
+    sendSeen: false
   });
 
   return convertToProviderMessage(sentMessage);
