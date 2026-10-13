@@ -23,6 +23,7 @@ ENV PUPPETEER_SKIP_CHROMIUM_DOWNLOAD true
 
 WORKDIR /usr/src/app
 COPY package*.json .npmrc ./
+COPY patches ./patches
 RUN npm install
 
 COPY . .

@@ -5,3 +5,7 @@ node_modules
 dist
 .wwebjs_auth
 .zapo_auth
+.env
+.env-*
+public
+.wwebjs_cache
