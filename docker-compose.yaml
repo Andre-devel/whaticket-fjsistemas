@@ -37,10 +37,8 @@ services:
       context: ./frontend
       dockerfile: ./Dockerfile
     environment:
-      - URL_BACKEND=backend:3000
       - VITE_BACKEND_URL=${BACKEND_URL}/
       - VITE_HOURS_CLOSE_TICKETS_AUTO=${VITE_HOURS_CLOSE_TICKETS_AUTO:-}
-      - FRONTEND_SERVER_NAME=${FRONTEND_SERVER_NAME}
     ports:
       # nginx proxies fjzap -> 10.1.1.25:3000
       - "3000:80"
